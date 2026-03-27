@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Google</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1a0dab;
+      --visited: #681da8;
+      --green: #006621;
+      --red: #d93025;
+      --text: #202124;
+      --muted: #70757a;
+      --border: #dfe1e5;
+      --hover-bg: #f8f9fa;
+      --link-blue: #1558d6;
+      --ad-green: #388e3c;
+    }
+
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      color: var(--text);
+      background: #fff;
+      min-height: 100vh;
+    }
+
+    /* PAGE STATES */
+    #home-page { display: flex; }
+    #results-page { display: none; }
+
+    /* ========================
+       HOME PAGE
+    ======================== */
+    #home-page {
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 0;
+      min-height: 100vh;
+    }
+
+    .home-header {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      gap: 1rem;
+    }
+    .home-header a {
+      font-size: 0.85rem; color: var(--text);
+      text-decoration: none;
+    }
+    .home-header a:hover { text-decoration: underline; }
+    .sign-in-btn {
+      background: #1a73e8; color: white !important;
+      padding: 0.5rem 1.2rem; border-radius: 4px;
+      font-weight: 500;
+    }
+    .sign-in-btn:hover { background: #1765cc; text-decoration: none !important; }
+
+    .home-center {
+      display: flex; flex-direction: column;
+      align-items: center;
+      margin-top: 10vh;
+      width: 100%;
+      max-width: 600px;
+      padding: 0 1rem;
+    }
+
+    .google-logo {
+      width: 272px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* SVG logo */
+    .logo-svg { width: 272px; height: 92px; }
+
+    .search-box-wrap {
+      width: 100%;
+      max-width: 584px;
+      position: relative;
+    }
+    .search-box {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      display: flex; align-items: center;
+      padding: 0 0.8rem 0 1rem;
+      gap: 0.5rem;
+      background: #fff;
+      box-shadow: none;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      cursor: text;
+    }
+    .search-box:hover, .search-box:focus-within {
+      box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+      border-color: rgba(223,225,229,0);
+    }
+    .search-icon { color: #9aa0a6; font-size: 1rem; flex-shrink: 0; }
+    .search-input {
+      flex: 1;
+      border: none; outline: none;
+      font-size: 1rem; color: var(--text);
+      font-family: 'Roboto', Arial, sans-serif;
+      background: transparent;
+    }
+    .search-input::placeholder { color: transparent; }
+    .mic-icon, .camera-icon {
+      color: #4285f4; font-size: 1.1rem;
+      cursor: pointer; flex-shrink: 0;
+      transition: color 0.2s;
+      background: none; border: none; padding: 0;
+    }
+    .mic-icon:hover, .camera-icon:hover { color: #1765cc; }
+    .sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+
+    .home-buttons {
+      display: flex; gap: 0.7rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center;
+    }
+    .home-btn {
+      background: #f8f9fa; border: 1px solid #f8f9fa;
+      color: var(--text); padding: 0.6rem 1rem;
+      font-size: 0.875rem; border-radius: 4px; cursor: pointer;
+      font-family: 'Roboto', Arial, sans-serif;
+      transition: all 0.2s;
+    }
+    .home-btn:hover { border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    .home-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #f2f2f2; border-top: 1px solid #e4e4e4;
+    }
+    .home-footer-country { padding: 0.8rem 1.5rem; font-size: 0.875rem; color: var(--muted); border-bottom: 1px solid #e4e4e4; }
+    .home-footer-links {
+      display: flex; justify-content: space-between;
+      padding: 0.7rem 1.5rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .home-footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+    .home-footer-links a:hover { text-decoration: underline; }
+    .footer-group { display: flex; gap: 1.5rem; }
+
+    /* ========================
+       RESULTS PAGE
+    ======================== */
+    #results-page {
+      flex-direction: column;
+    }
+
+    /* Top nav */
+    .results-nav {
+      display: flex; align-items: center;
+      padding: 0.6rem 1.5rem 0;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: white; z-index: 10;
+    }
+    .results-logo {
+      font-family: 'Roboto', Arial, sans-serif;
+      font-size: 1.7rem; font-weight: 700;
+      text-decoration: none; letter-spacing: -1px;
+      flex-shrink: 0;
+    }
+    .results-logo .g { color: #4285f4; }
+    .results-logo .o1 { color: #db4437; }
+    .results-logo .o2 { color: #f4b400; }
+    .results-logo .g2 { color: #4285f4; }
+    .results-logo .l { color: #0f9d58; }
+    .results-logo .e { color: #db4437; }
+
+    .results-search-wrap {
+      flex: 1; max-width: 600px; min-width: 200px; position: relative;
+    }
+    .results-search-box {
+      width: 100%; height: 44px; border: 1px solid var(--border); border-radius: 24px;
+      display: flex; align-items: center; padding: 0 0.8rem 0 1rem; gap: 0.5rem;
+      background: #fff; transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .results-search-box:hover, .results-search-box:focus-within {
+      box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+      border-color: rgba(223,225,229,0);
+    }
+    .results-input {
+      flex: 1; border: none; outline: none;
+      font-size: 1rem; color: var(--text);
+      font-family: 'Roboto', Arial, sans-serif;
+      background: transparent;
+    }
+    .results-search-btn {
+      color: #9aa0a6; border: none; background: none; cursor: pointer; padding: 0 0.4rem;
+    }
+
+    /* Filter tabs */
+    .results-tabs {
+      display: flex; gap: 0; padding: 0 1.5rem;
+      padding-left: 170px;
+      overflow-x: auto;
+    }
+    .tab-item {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.75rem 0.85rem;
+      font-size: 0.85rem; color: var(--muted);
+      border-bottom: 3px solid transparent;
+      cursor: pointer; white-space: nowrap;
+      transition: color 0.2s;
+      text-decoration: none;
+    }
+    .tab-item:hover { color: var(--text); }
+    .tab-item.active { color: #1558d6; border-bottom-color: #1558d6; }
+    .tab-icon { font-size: 0.95rem; }
+
+    /* Results content */
+    .results-body {
+      display: flex; padding: 1.2rem 0 1.2rem 14rem;
+      max-width: 1200px;
+      gap: 4rem;
+    }
+    .results-main { flex: 1; max-width: 650px; min-width: 0; }
+    .results-sidebar { width: 380px; flex-shrink: 0; }
+
+    /* Stats */
+    .results-stats {
+      font-size: 0.85rem; color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    /* Result card */
+    .result-item { margin-bottom: 1.5rem; }
+    .result-cite { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem; }
+    .result-favicon { width: 18px; height: 18px; border-radius: 50%; background: #e8eaed; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; flex-shrink: 0; }
+    .result-domain { font-size: 0.875rem; color: var(--text); }
+    .result-breadcrumb { font-size: 0.875rem; color: var(--muted); }
+    .result-title {
+      font-size: 1.2rem; color: var(--blue);
+      text-decoration: none; line-height: 1.3;
+      display: block; margin-bottom: 0.3rem;
+    }
+    .result-title:hover { text-decoration: underline; }
+    .result-title:visited { color: var(--visited); }
+    .result-snippet { font-size: 0.9rem; color: var(--text); line-height: 1.58; }
+    .result-snippet .highlight { font-weight: 500; }
+    .result-date { color: var(--muted); }
+
+    /* Featured snippet */
+    .featured-box {
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 1.2rem; margin-bottom: 1.5rem;
+    }
+    .featured-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+    .featured-text { font-size: 0.95rem; line-height: 1.6; }
+
+    /* People also ask */
+    .paa-section { margin-bottom: 2rem; }
+    .paa-title { font-size: 1.2rem; color: var(--text); margin-bottom: 1rem; }
+    .paa-item {
+      border: 1px solid var(--border); border-radius: 8px;
+      margin-bottom: 0.5rem; overflow: hidden;
+    }
+    .paa-q {
+      padding: 1rem; font-size: 0.95rem; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      user-select: none;
+    }
+    .paa-q:hover { background: #f8f9fa; }
+    .paa-chevron { color: var(--muted); transition: transform 0.2s; }
+    .paa-a { display: none; padding: 0 1rem 1rem; font-size: 0.9rem; color: var(--text); border-top: 1px solid var(--border); line-height: 1.6; background: #fafafa; }
+    .paa-item.open .paa-a { display: block; }
+    .paa-item.open .paa-chevron { transform: rotate(180deg); }
+
+    /* Knowledge panel */
+    .knowledge-panel {
+      border: 1px solid var(--border); border-radius: 8px;
+      overflow: hidden; font-size: 0.9rem;
+    }
+    .kp-header { background: #f8f9fa; padding: 1.2rem; }
+    .kp-name { font-size: 1.4rem; font-weight: 400; color: var(--text); margin-bottom: 0.2rem; }
+    .kp-type { font-size: 0.875rem; color: var(--muted); }
+    .kp-body { padding: 1rem 1.2rem; }
+    .kp-desc { color: var(--text); line-height: 1.6; margin-bottom: 1rem; font-size: 0.9rem; }
+    .kp-row { display: flex; padding: 0.4rem 0; border-bottom: 1px solid #f1f1f1; font-size: 0.875rem; }
+    .kp-label { color: var(--muted); width: 120px; flex-shrink: 0; }
+    .kp-val { color: var(--text); }
+    .kp-link { color: var(--blue); text-decoration: none; }
+    .kp-link:hover { text-decoration: underline; }
+
+    /* Related searches */
+    .related { margin-top: 2rem; }
+    .related-title { font-size: 1rem; color: var(--text); margin-bottom: 0.8rem; font-weight: 500; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .related-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.7rem 1rem; border: 1px solid var(--border); border-radius: 24px;
+      font-size: 0.875rem; color: var(--text); cursor: pointer;
+      transition: background 0.2s;
+    }
+    .related-item:hover { background: var(--hover-bg); }
+    .related-icon { color: var(--muted); font-size: 0.9rem; }
+
+    /* Results footer */
+    .results-footer {
+      text-align: center; padding: 2rem 1rem 3rem;
+      border-top: 1px solid var(--border); margin-top: 2rem;
+    }
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 0.2rem; flex-wrap: wrap; }
+    .page-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; margin-right: 1rem; }
+    .page-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      font-size: 0.875rem; cursor: pointer; border: none; background: none;
+      color: var(--muted); transition: background 0.2s;
+    }
+    .page-btn:hover { background: var(--hover-bg); }
+    .page-btn.active { color: #1558d6; font-size: 1rem; }
+    .next-btn {
+      color: #1558d6; cursor: pointer; font-size: 0.875rem;
+      background: none; border: none; padding: 0 1rem;
+    }
+    .next-btn:hover { text-decoration: underline; }
+    .rf-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .rf-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+    .rf-links a:hover { text-decoration: underline; color: var(--blue); }
+
+    /* Responsive */
+    @media (max-width: 1000px) {
+      .results-body { padding-left: 1.5rem; gap: 1.5rem; }
+      .results-sidebar { display: none; }
+    }
+    @media (max-width: 700px) {
+      .results-tabs { padding-left: 0; }
+      .results-body { padding: 1rem; }
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .home-footer-links { flex-direction: column; gap: 0.8rem; }
+      .footer-group { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HOME PAGE ==================== -->
+  <div id="home-page">
+    <header class="home-header">
+      <a href="#">Gmail</a>
+      <a href="#">Images</a>
+      <a href="#" class="sign-in-btn">Sign in</a>
+    </header>
+
+    <div class="home-center">
+      <!-- Google Logo via SVG -->
+      <svg class="logo-svg" viewBox="0 0 272 92" xmlns="http://www.w3.org/2000/svg" aria-label="Google">
+        <text y="80" font-family="'Roboto',Arial,sans-serif" font-size="80" font-weight="700" letter-spacing="-4">
+          <tspan fill="#4285F4">G</tspan><tspan fill="#DB4437">o</tspan><tspan fill="#F4B400">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#0F9D58">l</tspan><tspan fill="#DB4437">e</tspan>
+        </text>
+      </svg>
+
+      <div class="search-box-wrap">
+        <div class="search-box" id="homeSearchBox">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="homeInput" placeholder="Search Google or type a URL" autocomplete="off"/>
+          <button class="mic-icon" title="Search by voice">🎤</button>
+          <span class="sep"></span>
+          <button class="camera-icon" title="Search by image">📷</button>
+        </div>
+      </div>
+
+      <div class="home-buttons">
+        <button class="home-btn" id="googleSearchBtn">Google Search</button>
+        <button class="home-btn">I'm Feeling Lucky</button>
+      </div>
+      <p style="margin-top:1.5rem;font-size:0.85rem;color:#70757a;">Google offered in: <a href="#" style="color:#1558d6;">हिन्दी</a>&nbsp; <a href="#" style="color:#1558d6;">বাংলা</a>&nbsp; <a href="#" style="color:#1558d6;">తెలుగు</a></p>
+    </div>
+
+    <footer class="home-footer">
+      <div class="home-footer-country">India</div>
+      <div class="home-footer-links">
+        <div class="footer-group">
+          <a href="#">About</a><a href="#">Advertising</a><a href="#">Business</a><a href="#">How Search works</a>
+        </div>
+        <div class="footer-group">
+          <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Settings</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== RESULTS PAGE ==================== -->
+  <div id="results-page">
+    <!-- Top Nav -->
+    <nav class="results-nav">
+      <a class="results-logo" href="#" id="backToHome">
+        <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="g2">g</span><span class="l">l</span><span class="e">e</span>
+      </a>
+      <div class="results-search-wrap">
+        <div class="results-search-box">
+          <input type="text" class="results-input" id="resultsInput"/>
+          <button class="results-search-btn" id="resultsSearchBtn">🔍</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-left:auto;">
+        <button style="background:none;border:none;cursor:pointer;font-size:1rem;color:#70757a;">🎤</button>
+        <button style="background:none;border:none;cursor:pointer;font-size:1rem;color:#70757a;">📷</button>
+        <button style="background:#1a73e8;color:white;border:none;padding:0.45rem 0.9rem;border-radius:4px;font-family:Roboto,sans-serif;font-size:0.85rem;cursor:pointer;">Sign in</button>
+      </div>
+    </nav>
+
+    <!-- Filter tabs -->
+    <div class="results-tabs">
+      <a class="tab-item active" href="#"><span class="tab-icon">🔍</span> All</a>
+      <a class="tab-item" href="#"><span class="tab-icon">📰</span> News</a>
+      <a class="tab-item" href="#"><span class="tab-icon">🖼️</span> Images</a>
+      <a class="tab-item" href="#"><span class="tab-icon">▶️</span> Videos</a>
+      <a class="tab-item" href="#"><span class="tab-icon">🗺️</span> Maps</a>
+      <a class="tab-item" href="#"><span class="tab-icon">⋯</span> More</a>
+      <a class="tab-item" href="#" style="margin-left:auto;color:#1558d6;">Tools</a>
+    </div>
+
+    <!-- Results body -->
+    <div class="results-body">
+      <main class="results-main">
+        <div class="results-stats" id="resultsStats">About 8,42,00,00,000 results (0.58 seconds)</div>
+
+        <div id="resultsContainer"></div>
+
+        <!-- Related searches -->
+        <div class="related">
+          <div class="related-title">Searches related to <span id="relatedQuery"></span></div>
+          <div class="related-grid" id="relatedGrid"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="results-footer">
+          <div class="pagination">
+            <span class="page-logo">
+              <span style="color:#4285F4">G</span><span style="color:#DB4437">o</span><span style="color:#F4B400">o</span><span style="color:#4285F4">g</span><span style="color:#0F9D58">l</span><span style="color:#DB4437">e</span>
+            </span>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn">6</button>
+            <button class="page-btn">7</button>
+            <button class="page-btn">8</button>
+            <button class="page-btn">9</button>
+            <button class="page-btn">10</button>
+            <button class="next-btn">Next ›</button>
+          </div>
+          <div class="rf-links">
+            <a href="#">Help</a><a href="#">Send feedback</a><a href="#">Privacy</a><a href="#">Terms</a>
+          </div>
+        </div>
+      </main>
+
+      <aside class="results-sidebar" id="knowledgeSidebar"></aside>
+    </div>
+  </div>
+
+  <script>
+    // ---- DATA ----
+    const searchData = {
+      default: {
+        results: [
+          {
+            domain: 'en.wikipedia.org', breadcrumb: 'en.wikipedia.org › wiki',
+            title: 'Google — Wikipedia, the free encyclopedia',
+            snippet: 'Google LLC is an American multinational corporation and technology company focusing on <span class="highlight">online advertising</span>, <span class="highlight">search engine</span> technology, cloud computing, computer software, quantum computing, e-commerce, and artificial intelligence.',
+            favicon: 'W', date: ''
+          },
+          {
+            domain: 'about.google', breadcrumb: 'about.google',
+            title: 'Google — Products, Ads, Developers and More',
+            snippet: 'Discover all the ways Google\'s products, platforms, and services help billions of people every day. Search, Maps, Gmail, YouTube, and more.',
+            favicon: 'G', date: 'Mar 20, 2025 — '
+          },
+          {
+            domain: 'developers.google.com', breadcrumb: 'developers.google.com › web',
+            title: 'Google Developers — Web Development Resources',
+            snippet: 'Build for the web with Google\'s developer tools and resources. Learn web fundamentals, use Chrome DevTools, and access APIs to build faster, better web experiences.',
+            favicon: '🔧', date: ''
+          },
+        ],
+        knowledge: null,
+        related: ['google search tips', 'google maps', 'google translate', 'google docs', 'google drive login', 'google chrome', 'google meet', 'google photos']
+      }
+    };
+
+    function getSearchData(query) {
+      const q = query.toLowerCase().trim();
+      return {
+        results: [
+          {
+            domain: 'en.wikipedia.org',
+            breadcrumb: `en.wikipedia.org › wiki › ${q.replace(/ /g,'_')}`,
+            title: `${query} — Wikipedia`,
+            snippet: `${query} is a widely searched topic on the internet. Wikipedia provides a comprehensive overview of <span class="highlight">${query}</span>, covering its history, applications, and significance in modern contexts.`,
+            favicon: 'W', date: ''
+          },
+          {
+            domain: `www.${q.replace(/ /g,'')}.com`,
+            breadcrumb: `www.${q.replace(/ /g,'')}.com`,
+            title: `Official ${query} Website — Homepage`,
+            snippet: `Welcome to the official home of <span class="highlight">${query}</span>. Discover everything you need to know about ${query}, including news, updates, documentation, and community resources.`,
+            favicon: '🌐', date: 'Apr 2, 2025 — '
+          },
+          {
+            domain: 'www.medium.com',
+            breadcrumb: `medium.com › ${q.replace(/ /,'-')}`,
+            title: `Everything You Need to Know About ${query}`,
+            snippet: `In this comprehensive guide, we break down <span class="highlight">${query}</span> from the basics to advanced concepts. Whether you're a beginner or experienced, this article covers everything.`,
+            favicon: 'M', date: 'Jan 15, 2025 — '
+          },
+          {
+            domain: 'stackoverflow.com',
+            breadcrumb: `stackoverflow.com › questions`,
+            title: `${query} — Stack Overflow`,
+            snippet: `Find answers to common questions about <span class="highlight">${query}</span>. Join millions of developers asking and answering questions about programming and technology.`,
+            favicon: '📚', date: ''
+          },
+          {
+            domain: 'www.youtube.com',
+            breadcrumb: `youtube.com › results?search_query=${encodeURIComponent(q)}`,
+            title: `${query} — YouTube`,
+            snippet: `Watch videos about <span class="highlight">${query}</span>. Find tutorials, explanations, demos, and more. YouTube has thousands of videos to help you learn about ${query}.`,
+            favicon: '▶', date: ''
+          },
+        ],
+        knowledge: null,
+        related: [
+          `what is ${q}`, `${q} tutorial`, `${q} examples`,
+          `${q} vs alternatives`, `best ${q} tools`, `${q} for beginners`,
+          `${q} documentation`, `learn ${q} online`
+        ]
+      };
+    }
+
+    function renderResults(query) {
+      const data = searchData[query.toLowerCase()] || getSearchData(query);
+
+      // Switch pages
+      document.getElementById('home-page').style.display = 'none';
+      const rp = document.getElementById('results-page');
+      rp.style.display = 'flex';
+      rp.style.flexDirection = 'column';
+
+      // Sync search input
+      document.getElementById('resultsInput').value = query;
+      document.getElementById('relatedQuery').textContent = query;
+
+      // Stats
+      const count = (Math.floor(Math.random() * 900) + 100) + ',00,00,000';
+      const time = (Math.random() * 0.5 + 0.3).toFixed(2);
+      document.getElementById('resultsStats').textContent = `About ${count} results (${time} seconds)`;
+
+      // Results
+      const container = document.getElementById('resultsContainer');
+      container.innerHTML = data.results.map(r => `
+        <div class="result-item">
+          <div class="result-cite">
+            <div class="result-favicon">${r.favicon}</div>
+            <div>
+              <div class="result-domain">${r.domain}</div>
+              <div class="result-breadcrumb">${r.breadcrumb}</div>
+            </div>
+          </div>
+          <a class="result-title" href="#">${r.title}</a>
+          <div class="result-snippet"><span class="result-date">${r.date}</span>${r.snippet}</div>
+        </div>
+      `).join('');
+
+      // Related
+      const relatedGrid = document.getElementById('relatedGrid');
+      relatedGrid.innerHTML = data.related.map(r =>
+        `<div class="related-item" onclick="doSearch('${r}')"><span class="related-icon">🔍</span>${r}</div>`
+      ).join('');
+
+      // Knowledge panel (clear for dynamic)
+      document.getElementById('knowledgeSidebar').innerHTML = '';
+    }
+
+    function doSearch(query) {
+      if (!query.trim()) return;
+      renderResults(query);
+      window.scrollTo(0, 0);
+    }
+
+    // Home search
+    document.getElementById('homeInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch(e.target.value);
+    });
+    document.getElementById('googleSearchBtn').addEventListener('click', () => {
+      doSearch(document.getElementById('homeInput').value || 'Google');
+    });
+    document.getElementById('homeSearchBox').addEventListener('click', () => {
+      document.getElementById('homeInput').focus();
+    });
+
+    // Results search
+    document.getElementById('resultsInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch(e.target.value);
+    });
+    document.getElementById('resultsSearchBtn').addEventListener('click', () => {
+      doSearch(document.getElementById('resultsInput').value);
+    });
+
+    // Back to home
+    document.getElementById('backToHome').addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('results-page').style.display = 'none';
+      document.getElementById('home-page').style.display = 'flex';
+      document.getElementById('homeInput').value = '';
+    });
+
+    // People also ask toggles
+    document.addEventListener('click', e => {
+      const q = e.target.closest('.paa-q');
+      if (q) q.closest('.paa-item').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
